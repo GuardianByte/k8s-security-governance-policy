@@ -1,0 +1,23 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-aws-metadata-exposure
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+    - name: restrict-instance-metadata
+      match:
+        resources:
+          kinds:
+            - Pod
+      validate:
+        message: "Access to AWS instance metadata is restricted."
+        pattern:
+          spec:
+            containers:
+              - name: "*"
+                volumeMounts:
+                  - mountPath: "!/var/run/secrets/kubernetes.io/serviceaccount"
+            automountServiceAccountToken: false
+            hostNetwork: false
