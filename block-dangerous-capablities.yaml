@@ -1,0 +1,24 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-dangerous-capabilities
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+    - name: block-dangerous-capabilities
+      match:
+        resources:
+          kinds:
+            - Pod
+      validate:
+        message: "Use of dangerous system capabilities is not allowed."
+        pattern:
+          spec:
+            containers:
+              - securityContext:
+                  capabilities:
+                    drop:
+                      - SYS_ADMIN
+                      - NET_ADMIN
+                      - DAC_OVERRIDE
