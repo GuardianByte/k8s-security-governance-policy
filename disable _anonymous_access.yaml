@@ -1,0 +1,21 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disable-anonymous-access
+spec:
+  validationFailureAction: enforce
+  rules:
+    - name: block-anonymous-user
+      match:
+        resources:
+          kinds:
+            - RoleBinding
+            - ClusterRoleBinding
+      validate:
+        message: "Binding to the 'system:anonymous' user or 'system:unauthenticated' group is not allowed."
+        pattern:
+          subjects:
+            - name: "!system:anonymous"
+              kind: "User"
+            - name: "!system:unauthenticated"
+              kind: "Group"
